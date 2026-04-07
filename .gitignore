@@ -13,3 +13,4 @@ coverage/
 *.log
 .env*
 !.env.example
+API KEY.rtf
