@@ -9,8 +9,6 @@ type RefImage = { data: string; mimeType: string };
 interface MainContentProps {
   prompt: string;
   setPrompt: (val: string) => void;
-  generatedImage: string | null;
-  setGeneratedImage: (val: string | null) => void;
   onImageGenerated: (imgData: string) => void;
   isGenerating: boolean;
   setIsGenerating: (val: boolean) => void;
@@ -28,7 +26,7 @@ interface MainContentProps {
 
 export default function MainContent({
   prompt, setPrompt,
-  generatedImage, setGeneratedImage, onImageGenerated,
+  onImageGenerated,
   isGenerating, setIsGenerating,
   aspectRatio, resolution,
   useGoogleSearch, setUseGoogleSearch,
@@ -38,6 +36,8 @@ export default function MainContent({
 }: MainContentProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
+
+  const previewImage = referenceImages[0] ?? null;
 
   const addImages = (files: FileList | File[]) => {
     const fileArray = Array.from(files).filter(f => f.type.startsWith('image/'));
@@ -115,9 +115,9 @@ export default function MainContent({
   };
 
   return (
-    <div className="flex-1 flex flex-col h-full relative">
+    <div className="flex-1 flex flex-col h-full">
       {/* Top Bar */}
-      <div className="h-14 border-b border-[#333537] flex items-center px-4" />
+      <div className="h-14 border-b border-[#333537] flex items-center px-4 flex-shrink-0" />
 
       {/* Main Area */}
       <div className="flex-1 overflow-auto flex items-center justify-center p-8 min-h-0">
@@ -126,25 +126,21 @@ export default function MainContent({
             <div className="w-12 h-12 border-4 border-[#8ab4f8] border-t-transparent rounded-full animate-spin" />
             <p className="text-gray-400">Generating image...</p>
           </div>
-        ) : generatedImage ? (
+        ) : previewImage ? (
           <div className="relative max-w-full max-h-full flex items-center justify-center">
             <img
-              src={generatedImage}
-              alt="Generated"
+              src={`data:${previewImage.mimeType};base64,${previewImage.data}`}
+              alt="Preview"
               draggable
               onDragStart={(e) => {
-                const match = generatedImage.match(/^data:([^;]+);base64,(.+)$/);
-                if (match) {
-                  e.dataTransfer.setData('application/x-reference-image', JSON.stringify({ mimeType: match[1], data: match[2] }));
-                }
+                e.dataTransfer.setData('application/x-reference-image', JSON.stringify(previewImage));
               }}
               className="max-w-full max-h-full object-contain rounded-lg shadow-2xl cursor-grab active:cursor-grabbing"
-              referrerPolicy="no-referrer"
             />
             <button
-              onClick={() => { setGeneratedImage(null); setReferenceImages([]); }}
+              onClick={() => setReferenceImages([])}
               className="absolute top-2 right-2 bg-black/60 hover:bg-black/90 rounded-full p-1.5 transition-colors"
-              title="Bild löschen und neu starten"
+              title="Alle Bilder entfernen"
             >
               <X className="w-4 h-4 text-white" />
             </button>
@@ -168,7 +164,7 @@ export default function MainContent({
           {referenceImages.length > 0 && (
             <div className="flex items-center gap-2 px-2 flex-wrap">
               {referenceImages.map((img, i) => (
-                <div key={i} className="relative w-16 h-16 rounded-md overflow-hidden border border-[#333537] flex-shrink-0">
+                <div key={i} className={`relative w-16 h-16 rounded-md overflow-hidden border flex-shrink-0 ${i === 0 ? 'border-[#8ab4f8]' : 'border-[#333537]'}`}>
                   <img src={`data:${img.mimeType};base64,${img.data}`} alt={`Reference ${i + 1}`} className="w-full h-full object-cover" />
                   <button
                     onClick={() => removeImage(i)}

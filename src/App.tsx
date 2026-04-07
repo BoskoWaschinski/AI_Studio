@@ -25,14 +25,12 @@ export default function App() {
   const [thinkingLevel, setThinkingLevel] = useState('Minimal');
   const [useGoogleSearch, setUseGoogleSearch] = useState(false);
   const [useImageSearch, setUseImageSearch] = useState(false);
-  const [generatedImage, setGeneratedImage] = useState<string | null>(null);
   const [generatedImages, setGeneratedImages] = useState<string[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [referenceImages, setReferenceImages] = useState<{ data: string, mimeType: string }[]>([]);
   const [customApiKey, setCustomApiKey] = useState('');
 
   const handleImageGenerated = (imgData: string) => {
-    setGeneratedImage(imgData);
     setGeneratedImages(prev => [...prev, imgData]);
   };
 
@@ -42,8 +40,6 @@ export default function App() {
       <MainContent
         prompt={prompt}
         setPrompt={setPrompt}
-        generatedImage={generatedImage}
-        setGeneratedImage={setGeneratedImage}
         onImageGenerated={handleImageGenerated}
         isGenerating={isGenerating}
         setIsGenerating={setIsGenerating}
