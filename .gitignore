@@ -1,4 +1,11 @@
 node_modules/
+start-macos-arm64
+start-macos-x64
+start-win-x64.exe
+start.sh
+start.bat
+start.command
+server.js
 build/
 dist/
 coverage/
